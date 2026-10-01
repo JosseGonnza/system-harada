@@ -1,0 +1,1151 @@
+{
+  "app": "harada",
+  "version": 1,
+  "exportadoISO": "2026-09-28T20:00:00.000Z",
+  "config": {
+    "cuadriculaActivaId": "maraton",
+    "diaRevision": 5,
+    "ultimoExportISO": "2026-09-28T20:00:00.000Z"
+  },
+  "cuadricula": {
+    "id": "maraton",
+    "objetivo": "Terminar mi primera maratón en menos de 4 horas",
+    "objetivoCorto": "Maratón < 4 h",
+    "fechaObjetivo": "2027-03-14",
+    "fechaInicio": "2026-08-17",
+    "fechaFin": "2027-03-07",
+    "fase": "el plan",
+    "pilares": [
+      {
+        "id": "rodajes",
+        "nombre": "Rodajes",
+        "porque": "Los kilómetros de base son los que te llevan hasta el 42.",
+        "color": 1,
+        "acciones": [
+          {
+            "corto": "Plan de 30 semanas",
+            "texto": "Elegir un plan de 30 semanas y pasarlo al calendario.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "rodajes-1",
+            "hechaISO": "2026-08-10"
+          },
+          {
+            "corto": "Rodaje suave",
+            "texto": "Rodaje a ritmo cómodo, de 40 a 60 minutos.",
+            "tipo": "habito",
+            "objetivoSemana": 3,
+            "maxSeguidos": 3,
+            "id": "rodajes-2"
+          },
+          {
+            "corto": "Tirada larga",
+            "texto": "La tirada larga del domingo, subiendo poco a poco.",
+            "tipo": "habito",
+            "objetivoSemana": 1,
+            "soloDias": [
+              0
+            ],
+            "id": "rodajes-3"
+          },
+          {
+            "corto": "Test de 10 km",
+            "texto": "Test de 10 km para fijar los ritmos de entrenamiento.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                6,
+                7
+              ]
+            },
+            "id": "rodajes-4",
+            "hechaISO": "2026-09-27"
+          },
+          {
+            "corto": "Media de prueba",
+            "texto": "Correr una media maratón como ensayo general.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                12,
+                14
+              ]
+            },
+            "id": "rodajes-5"
+          },
+          {
+            "corto": "Ritmo de conversación",
+            "texto": "Los rodajes suaves, a un ritmo en el que puedas hablar.",
+            "tipo": "principio",
+            "id": "rodajes-6"
+          },
+          {
+            "corto": "Subir con cabeza",
+            "texto": "Nunca más de un 10 % de kilómetros de una semana a otra.",
+            "tipo": "principio",
+            "id": "rodajes-7"
+          },
+          {
+            "corto": "Elegir ritmo objetivo",
+            "texto": "Con el test hecho, decidir el ritmo de carrera.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                7,
+                8
+              ]
+            },
+            "id": "rodajes-8"
+          }
+        ]
+      },
+      {
+        "id": "fuerza",
+        "nombre": "Fuerza",
+        "porque": "Piernas y core fuertes: menos lesiones en los últimos kilómetros.",
+        "color": 2,
+        "acciones": [
+          {
+            "corto": "Fuerza de piernas",
+            "texto": "Sentadillas, zancadas y gemelos.",
+            "tipo": "habito",
+            "objetivoSemana": 2,
+            "id": "fuerza-1"
+          },
+          {
+            "corto": "Core 10 min",
+            "texto": "Diez minutos de plancha y estabilidad.",
+            "tipo": "habito",
+            "objetivoSemana": 3,
+            "id": "fuerza-2"
+          },
+          {
+            "corto": "Rutina con fisio",
+            "texto": "Montar la rutina de fuerza con un fisioterapeuta.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "fuerza-3",
+            "hechaISO": "2026-08-12"
+          },
+          {
+            "corto": "Técnica antes que peso",
+            "texto": "Ningún ejercicio con mala técnica para subir peso.",
+            "tipo": "principio",
+            "id": "fuerza-4"
+          },
+          {
+            "corto": "Test de sentadilla",
+            "texto": "Medir la sentadilla para ver el progreso.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                4,
+                4
+              ]
+            },
+            "id": "fuerza-5",
+            "hechaISO": "2026-09-10"
+          },
+          {
+            "corto": "Estirar al acabar",
+            "texto": "Estirar después de cada rodaje, aunque sea poco.",
+            "tipo": "principio",
+            "id": "fuerza-6"
+          },
+          {
+            "corto": "Bandas elásticas",
+            "texto": "Comprar bandas para entrenar fuerza en casa.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "fuerza-7",
+            "hechaISO": "2026-08-14"
+          },
+          {
+            "corto": "Revisar la rutina",
+            "texto": "Revisar la rutina de fuerza a mitad del bloque.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                7,
+                8
+              ]
+            },
+            "id": "fuerza-8"
+          }
+        ]
+      },
+      {
+        "id": "descanso",
+        "nombre": "Descanso",
+        "porque": "Se mejora descansando, no solo entrenando.",
+        "color": 3,
+        "acciones": [
+          {
+            "corto": "Dormir 8 h",
+            "texto": "Ocho horas de sueño, también entre semana.",
+            "tipo": "habito",
+            "objetivoSemana": 6,
+            "id": "descanso-1"
+          },
+          {
+            "corto": "Día libre tras la tirada",
+            "texto": "El día después de la tirada larga no se corre.",
+            "tipo": "principio",
+            "id": "descanso-2"
+          },
+          {
+            "corto": "Escuchar las molestias",
+            "texto": "Una molestia que dura tres días se consulta.",
+            "tipo": "principio",
+            "id": "descanso-3"
+          },
+          {
+            "corto": "Masaje de descarga",
+            "texto": "Un masaje de descarga después del primer bloque.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                6,
+                8
+              ]
+            },
+            "id": "descanso-4"
+          },
+          {
+            "corto": "Pantallas fuera",
+            "texto": "Nada de pantallas en la cama a partir de las 23:00.",
+            "tipo": "principio",
+            "id": "descanso-5"
+          },
+          {
+            "corto": "Pulso en reposo",
+            "texto": "Configurar el reloj para ver el pulso en reposo.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "descanso-6",
+            "hechaISO": "2026-08-11"
+          },
+          {
+            "corto": "Semana de descarga",
+            "texto": "Una semana suave cada cuatro.",
+            "tipo": "principio",
+            "id": "descanso-7"
+          },
+          {
+            "corto": "Revisión médica",
+            "texto": "Revisión médica deportiva antes de empezar.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "descanso-8",
+            "hechaISO": "2026-08-07"
+          }
+        ]
+      },
+      {
+        "id": "comida",
+        "nombre": "Alimentación",
+        "porque": "Comer para entrenar, no para compensar.",
+        "color": 4,
+        "acciones": [
+          {
+            "corto": "Comida de la semana",
+            "texto": "Cocinar el domingo la comida de varios días.",
+            "tipo": "habito",
+            "objetivoSemana": 1,
+            "soloDias": [
+              0
+            ],
+            "id": "comida-1"
+          },
+          {
+            "corto": "Hidratarse",
+            "texto": "Beber durante todo el día, no solo al correr.",
+            "tipo": "principio",
+            "id": "comida-2"
+          },
+          {
+            "corto": "Probar geles",
+            "texto": "Probar geles en las tiradas largas hasta dar con uno.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                7,
+                9
+              ]
+            },
+            "id": "comida-3"
+          },
+          {
+            "corto": "Plan con nutricionista",
+            "texto": "Una consulta para ajustar lo que comes.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "comida-4",
+            "hechaISO": "2026-08-13"
+          },
+          {
+            "corto": "Nada nuevo el domingo",
+            "texto": "Nada nuevo antes de una tirada larga.",
+            "tipo": "principio",
+            "id": "comida-5"
+          },
+          {
+            "corto": "Fruta antes que bollería",
+            "texto": "Fruta o frutos secos para picar.",
+            "tipo": "principio",
+            "id": "comida-6"
+          },
+          {
+            "corto": "Agua 2 l",
+            "texto": "Dos litros de agua al día.",
+            "tipo": "habito",
+            "objetivoSemana": 6,
+            "id": "comida-7"
+          },
+          {
+            "corto": "Lista de la compra",
+            "texto": "Una lista fija para no improvisar.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                1,
+                2
+              ]
+            },
+            "id": "comida-8"
+          }
+        ]
+      },
+      {
+        "id": "material",
+        "nombre": "Material",
+        "porque": "Zapatillas y ropa no pueden ser un problema el día D.",
+        "color": 5,
+        "acciones": [
+          {
+            "corto": "Estudio de pisada",
+            "texto": "Estudio de pisada en una tienda especializada.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "material-1",
+            "hechaISO": "2026-08-08"
+          },
+          {
+            "corto": "Zapatillas de entreno",
+            "texto": "Zapatillas para los rodajes de todo el plan.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "material-2",
+            "hechaISO": "2026-08-09"
+          },
+          {
+            "corto": "Zapatillas de carrera",
+            "texto": "Elegir y estrenar las zapatillas del día D.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                10,
+                12
+              ]
+            },
+            "id": "material-3"
+          },
+          {
+            "corto": "Cinturón de geles",
+            "texto": "Comprar y probar un cinturón para los geles.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                7,
+                9
+              ]
+            },
+            "id": "material-4"
+          },
+          {
+            "corto": "Cambiar a los 700 km",
+            "texto": "Apuntar los kilómetros de cada par y cambiarlo a tiempo.",
+            "tipo": "principio",
+            "id": "material-5"
+          },
+          {
+            "corto": "Ropa probada",
+            "texto": "Probar la ropa de carrera en una tirada larga.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                12,
+                16
+              ]
+            },
+            "id": "material-6"
+          },
+          {
+            "corto": "Material a punto",
+            "texto": "Lavar y revisar el material cada domingo.",
+            "tipo": "principio",
+            "id": "material-7"
+          },
+          {
+            "corto": "Reloj configurado",
+            "texto": "Configurar el GPS con las zonas de ritmo.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "material-8",
+            "hechaISO": "2026-08-15"
+          }
+        ]
+      },
+      {
+        "id": "mente",
+        "nombre": "Mente",
+        "porque": "El muro del kilómetro 30 se pasa con la cabeza.",
+        "color": 6,
+        "acciones": [
+          {
+            "corto": "Visualizar la carrera",
+            "texto": "Imaginar la carrera entera antes de las tiradas largas.",
+            "tipo": "principio",
+            "id": "mente-1"
+          },
+          {
+            "corto": "Sin comparaciones",
+            "texto": "No compararse con los ritmos de otros.",
+            "tipo": "principio",
+            "id": "mente-2"
+          },
+          {
+            "corto": "Respiración 5 min",
+            "texto": "Cinco minutos de respiración tranquila.",
+            "tipo": "habito",
+            "objetivoSemana": 3,
+            "id": "mente-3"
+          },
+          {
+            "corto": "Frase para el km 30",
+            "texto": "Tener preparada la frase para el peor momento.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                9,
+                10
+              ]
+            },
+            "id": "mente-4"
+          },
+          {
+            "corto": "Celebrar cada tirada",
+            "texto": "Reconocer cada tirada larga terminada.",
+            "tipo": "principio",
+            "id": "mente-5"
+          },
+          {
+            "corto": "Leer sobre maratón",
+            "texto": "Leer un libro sobre preparación de maratón.",
+            "tipo": "tarea",
+            "id": "mente-6",
+            "hechaISO": "2026-09-22"
+          },
+          {
+            "corto": "Plan B si duele",
+            "texto": "Saber de antemano qué hacer si algo duele en carrera.",
+            "tipo": "principio",
+            "id": "mente-7"
+          },
+          {
+            "corto": "Correr en grupo",
+            "texto": "Probar a entrenar con un grupo una vez por semana.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                5,
+                6
+              ]
+            },
+            "id": "mente-8",
+            "hechaISO": "2026-09-19"
+          }
+        ]
+      },
+      {
+        "id": "carrera",
+        "nombre": "Día D",
+        "porque": "La maratón se prepara meses antes de la salida.",
+        "color": 7,
+        "acciones": [
+          {
+            "corto": "Inscripción",
+            "texto": "Inscribirse en la maratón.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "carrera-1",
+            "hechaISO": "2026-08-05"
+          },
+          {
+            "corto": "Hotel y viaje",
+            "texto": "Reservar el hotel y el viaje.",
+            "tipo": "tarea",
+            "cuando": {
+              "hasta": "2026-11-30"
+            },
+            "id": "carrera-2",
+            "hechaISO": "2026-09-24"
+          },
+          {
+            "corto": "Recorrido estudiado",
+            "texto": "Estudiar el recorrido y sus cuestas.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                20,
+                22
+              ]
+            },
+            "id": "carrera-3"
+          },
+          {
+            "corto": "Avituallamiento",
+            "texto": "Plan de geles y agua por kilómetro.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                18,
+                20
+              ]
+            },
+            "id": "carrera-4"
+          },
+          {
+            "corto": "Ritmos por tramos",
+            "texto": "Ritmo objetivo por cada tramo de la carrera.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                22,
+                24
+              ]
+            },
+            "id": "carrera-5"
+          },
+          {
+            "corto": "Simulacro",
+            "texto": "Simulacro de la mañana de carrera en una tirada larga.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                24,
+                26
+              ]
+            },
+            "id": "carrera-6"
+          },
+          {
+            "corto": "Bolsa preparada",
+            "texto": "La bolsa de carrera lista dos días antes.",
+            "tipo": "tarea",
+            "cuando": {
+              "hastaFin": true
+            },
+            "id": "carrera-7"
+          },
+          {
+            "corto": "Dorsal y chip",
+            "texto": "Recoger el dorsal y comprobar el chip.",
+            "tipo": "tarea",
+            "cuando": {
+              "desde": "2027-03-10",
+              "hasta": "2027-03-13"
+            },
+            "id": "carrera-8"
+          }
+        ]
+      },
+      {
+        "id": "constancia",
+        "nombre": "Constancia",
+        "porque": "Un plan que no se cumple no sirve, por bueno que sea.",
+        "color": 8,
+        "acciones": [
+          {
+            "corto": "Plan del lunes",
+            "texto": "Mirar el plan de la semana el lunes.",
+            "tipo": "habito",
+            "objetivoSemana": 1,
+            "soloDias": [
+              1
+            ],
+            "id": "constancia-1"
+          },
+          {
+            "corto": "Nunca dos días fuera",
+            "texto": "No saltarse dos entrenos seguidos.",
+            "tipo": "principio",
+            "id": "constancia-2"
+          },
+          {
+            "corto": "Aunque llueva",
+            "texto": "Se entrena aunque llueva: hay ropa para eso.",
+            "tipo": "principio",
+            "id": "constancia-3"
+          },
+          {
+            "corto": "Anotar sensaciones",
+            "texto": "Una línea de cómo te has sentido al correr.",
+            "tipo": "habito",
+            "objetivoSemana": 3,
+            "id": "constancia-4"
+          },
+          {
+            "corto": "Compañero de entreno",
+            "texto": "Buscar a alguien para las tiradas largas.",
+            "tipo": "tarea",
+            "cuando": {
+              "antesInicio": true
+            },
+            "id": "constancia-5",
+            "hechaISO": "2026-08-16"
+          },
+          {
+            "corto": "Ajustar, no abandonar",
+            "texto": "Si fallas una semana, se ajusta el plan; no se deja.",
+            "tipo": "principio",
+            "id": "constancia-6"
+          },
+          {
+            "corto": "Calendario de carreras",
+            "texto": "Elegir dos carreras cortas de preparación.",
+            "tipo": "tarea",
+            "cuando": {
+              "semanas": [
+                2,
+                3
+              ]
+            },
+            "id": "constancia-7",
+            "hechaISO": "2026-08-27"
+          },
+          {
+            "corto": "Celebrar la semana",
+            "texto": "Reconocer cada semana cumplida.",
+            "tipo": "principio",
+            "id": "constancia-8"
+          }
+        ]
+      }
+    ]
+  },
+  "marcas": {
+    "2026-08-10": [
+      "rodajes-2",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-1"
+    ],
+    "2026-08-11": [
+      "rodajes-2",
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-12": [
+      "rodajes-2",
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-08-13": [
+      "fuerza-2",
+      "descanso-1",
+      "mente-3"
+    ],
+    "2026-08-14": [
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-15": [
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "mente-3"
+    ],
+    "2026-08-16": [
+      "rodajes-2",
+      "rodajes-3",
+      "fuerza-2",
+      "descanso-1",
+      "comida-1"
+    ],
+    "2026-08-17": [
+      "descanso-1"
+    ],
+    "2026-08-18": [
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-19": [
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-20": [
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-21": [
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-08-22": [
+      "rodajes-2",
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-08-23": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-1",
+      "comida-7"
+    ],
+    "2026-08-24": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-25": [
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-08-26": [
+      "rodajes-2",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-08-27": [
+      "rodajes-2",
+      "fuerza-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-28": [
+      "rodajes-2",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-08-29": [
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-08-30": [
+      "rodajes-2",
+      "rodajes-3",
+      "descanso-1",
+      "comida-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-08-31": [
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "mente-3",
+      "constancia-1",
+      "constancia-4"
+    ],
+    "2026-09-01": [
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-09-02": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-03": [
+      "rodajes-2",
+      "fuerza-2",
+      "descanso-1",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-04": [
+      "descanso-1",
+      "constancia-4"
+    ],
+    "2026-09-05": [
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-06": [
+      "rodajes-2",
+      "rodajes-3",
+      "fuerza-1",
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-09-07": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-1"
+    ],
+    "2026-09-08": [
+      "rodajes-2",
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-09": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-09-10": [
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-11": [
+      "rodajes-2",
+      "fuerza-1",
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-12": [
+      "rodajes-2",
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "constancia-4"
+    ],
+    "2026-09-13": [
+      "rodajes-3",
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "comida-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-14": [
+      "rodajes-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-1"
+    ],
+    "2026-09-15": [
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-16": [
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-09-17": [
+      "rodajes-2",
+      "fuerza-2",
+      "mente-3"
+    ],
+    "2026-09-18": [
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-09-19": [
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-20": [
+      "rodajes-2",
+      "rodajes-3",
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-09-21": [
+      "rodajes-2",
+      "descanso-1",
+      "constancia-1",
+      "constancia-4"
+    ],
+    "2026-09-22": [
+      "descanso-1",
+      "comida-7",
+      "constancia-4"
+    ],
+    "2026-09-23": [
+      "rodajes-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-09-24": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-25": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-7"
+    ],
+    "2026-09-26": [
+      "fuerza-2",
+      "descanso-1",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-27": [
+      "fuerza-2",
+      "descanso-1",
+      "comida-1",
+      "comida-7",
+      "mente-3"
+    ],
+    "2026-09-28": [
+      "rodajes-2",
+      "fuerza-1",
+      "comida-7",
+      "constancia-1"
+    ],
+    "2026-09-29": [
+      "fuerza-1",
+      "fuerza-2",
+      "descanso-1",
+      "comida-7",
+      "mente-3",
+      "constancia-4"
+    ],
+    "2026-09-30": [
+      "rodajes-2",
+      "fuerza-1",
+      "descanso-1",
+      "mente-3"
+    ],
+    "2026-10-01": [
+      "descanso-1",
+      "comida-7"
+    ]
+  },
+  "revisiones": [
+    {
+      "semana": "2026-W34",
+      "fechaISO": "2026-08-21",
+      "respuestas": {
+        "rodajes-6": "medias",
+        "rodajes-7": "si",
+        "fuerza-4": "si",
+        "fuerza-6": "medias",
+        "descanso-2": "si",
+        "descanso-3": "si",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "si",
+        "comida-5": "si",
+        "comida-6": "si",
+        "material-5": "si",
+        "material-7": "si",
+        "mente-1": "medias",
+        "mente-2": "no",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "medias",
+        "constancia-8": "si"
+      }
+    },
+    {
+      "semana": "2026-W35",
+      "fechaISO": "2026-08-28",
+      "respuestas": {
+        "rodajes-6": "no",
+        "rodajes-7": "no",
+        "fuerza-4": "si",
+        "fuerza-6": "no",
+        "descanso-2": "si",
+        "descanso-3": "medias",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "si",
+        "comida-5": "si",
+        "comida-6": "medias",
+        "material-5": "si",
+        "material-7": "medias",
+        "mente-1": "no",
+        "mente-2": "medias",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "medias",
+        "constancia-8": "medias"
+      }
+    },
+    {
+      "semana": "2026-W36",
+      "fechaISO": "2026-09-04",
+      "respuestas": {
+        "rodajes-6": "si",
+        "rodajes-7": "si",
+        "fuerza-4": "si",
+        "fuerza-6": "si",
+        "descanso-2": "si",
+        "descanso-3": "no",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "medias",
+        "comida-5": "si",
+        "comida-6": "si",
+        "material-5": "medias",
+        "material-7": "si",
+        "mente-1": "si",
+        "mente-2": "medias",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "medias",
+        "constancia-8": "medias"
+      }
+    },
+    {
+      "semana": "2026-W37",
+      "fechaISO": "2026-09-11",
+      "respuestas": {
+        "rodajes-6": "si",
+        "rodajes-7": "medias",
+        "fuerza-4": "si",
+        "fuerza-6": "si",
+        "descanso-2": "si",
+        "descanso-3": "no",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "si",
+        "comida-5": "si",
+        "comida-6": "si",
+        "material-5": "si",
+        "material-7": "si",
+        "mente-1": "si",
+        "mente-2": "medias",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "si",
+        "constancia-8": "si"
+      }
+    },
+    {
+      "semana": "2026-W38",
+      "fechaISO": "2026-09-18",
+      "respuestas": {
+        "rodajes-6": "medias",
+        "rodajes-7": "medias",
+        "fuerza-4": "si",
+        "fuerza-6": "si",
+        "descanso-2": "si",
+        "descanso-3": "medias",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "si",
+        "comida-5": "si",
+        "comida-6": "si",
+        "material-5": "si",
+        "material-7": "si",
+        "mente-1": "si",
+        "mente-2": "si",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "no",
+        "constancia-8": "no"
+      }
+    },
+    {
+      "semana": "2026-W39",
+      "fechaISO": "2026-09-25",
+      "respuestas": {
+        "rodajes-6": "si",
+        "rodajes-7": "medias",
+        "fuerza-4": "si",
+        "fuerza-6": "si",
+        "descanso-2": "no",
+        "descanso-3": "si",
+        "descanso-5": "si",
+        "descanso-7": "si",
+        "comida-2": "si",
+        "comida-5": "si",
+        "comida-6": "medias",
+        "material-5": "si",
+        "material-7": "medias",
+        "mente-1": "si",
+        "mente-2": "si",
+        "mente-5": "si",
+        "mente-7": "si",
+        "constancia-2": "si",
+        "constancia-3": "si",
+        "constancia-6": "si",
+        "constancia-8": "si"
+      }
+    }
+  ]
+}

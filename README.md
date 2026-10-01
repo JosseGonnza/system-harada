@@ -85,6 +85,16 @@ Si tu fase tiene un horario fijo (horas totales, horas por día, festivos y un
 parón), puedes añadirlo como `calendario` en el JSON de la copia e importarlo:
 Ajustes calculará cuándo termina.
 
+## Probarla con el ejemplo
+
+En [`docs/ejemplo-maraton.json`](docs/ejemplo-maraton.json) está la cuadrícula de
+la captura: una primera maratón, con siete semanas de progreso. Para cargarla,
+**Ajustes → Importar copia**.
+
+Sus fechas son de otoño de 2026. Para verla como en la captura, abre
+`/?simular=2026-10-01`, y cuando acabes, «Salir» en la franja de arriba y
+**Ajustes → Borrar todo**.
+
 ## Cómo está hecha
 
 - **Astro 5 + Tailwind 4 + TypeScript** → PWA instalable y offline
