@@ -1,0 +1,180 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Cuadrícula">
+  <div id="vista"></div>
+  <dialog id="ficha" class="hoja" aria-labelledby="ficha-titulo"></dialog>
+  <dialog id="pilar-form" class="hoja" aria-labelledby="pilar-titulo">
+    <form class="flex flex-col gap-4">
+      <h2 id="pilar-titulo" class="text-xl font-bold leading-tight">Editar pilar</h2>
+      <label class="flex flex-col gap-1.5 text-sm"><span class="text-mut">Nombre</span>
+        <input name="nombre" maxlength="20" required class="campo" /></label>
+      <label class="flex flex-col gap-1.5 text-sm"><span class="text-mut">Por qué te acerca al objetivo</span>
+        <textarea name="porque" rows="3" maxlength="160" class="campo"></textarea></label>
+      <button type="submit" class="w-full rounded-full bg-acento py-3 font-semibold text-bg">Guardar</button>
+      <button type="button" data-cancelar class="py-2 text-sm text-mut">Cancelar</button>
+    </form>
+  </dialog>
+</Layout>
+
+<script>
+  import { getCuadricula, getMarcas, getRevisiones, initDB, setCuadricula } from '../lib/db';
+  import { diasEntre, fechaCorta, hoyISO } from '../lib/fechas';
+  import { crearFicha } from '../lib/ficha';
+  import { cuandoCorto, esc, RESPUESTA, TIPO } from '../lib/formato';
+  import { caducada, encendidos, pilaresFlojos, resumenPilar, ultimaRespuesta, vecesEn7Dias, type Contexto, type Estado } from '../lib/puntos';
+  import type { Accion, Cuadricula, Pilar } from '../lib/types';
+
+  // Posición de cada acción alrededor del centro del 3×3 (el 4 es el centro).
+  const HUECOS = [0, 1, 2, 3, 5, 6, 7, 8];
+
+  let c: Cuadricula;
+  let ctx: Contexto;
+
+  const vista = document.getElementById('vista') as HTMLDivElement;
+  const abrirFicha = crearFicha(
+    document.getElementById('ficha') as HTMLDialogElement,
+    () => ({ c, ctx }),
+    () => pintar(),
+  );
+
+  function mini(estados: Estado[]): string {
+    const celdas: string[] = Array(9);
+    celdas[4] = '<i class="pt pt-core"></i>';
+    HUECOS.forEach((h, i) => (celdas[h] = `<i class="pt pt-${estados[i]}"></i>`));
+    return `<span class="mini" aria-hidden="true">${celdas.join('')}</span>`;
+  }
+
+  function general(): string {
+    const dias = Math.max(0, diasEntre(ctx.hoy, c.fechaObjetivo));
+    const flojos = pilaresFlojos(c, ctx);
+    const celdas = c.pilares.map((p) => {
+      const r = resumenPilar(p, ctx);
+      const flojo = flojos.includes(p.id);
+      return `<button type="button" data-pilar="${p.id}" class="celda pil-${p.color} flex min-h-[112px] flex-col gap-2.5 p-3 text-left">
+        <span class="text-[13px] font-semibold leading-tight" style="color:var(--c)">${esc(p.nombre)}</span>
+        <span class="flex items-center justify-between gap-1">${mini(r.estados)}${flojo ? '<span class="rounded-full bg-aviso px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-bg">Flojo</span>' : ''}</span>
+        <span class="mt-auto text-[11px] text-mut tabular-nums">${r.on}/${8 - r.espera}${r.espera ? ` · ${r.espera} en espera` : ''}</span>
+      </button>`;
+    });
+    celdas.splice(
+      4,
+      0,
+      `<div class="anillo flex flex-col items-center justify-center gap-0.5 p-2 text-center">
+        <span class="text-[12px] font-bold uppercase tracking-wide">${esc(c.objetivoCorto ?? c.objetivo)}</span>
+        <span class="text-3xl font-bold leading-none">${dias}</span>
+        <span class="text-[11px] text-mut">días</span>
+      </div>`,
+    );
+    return `<p class="mb-3 text-sm text-mut"><span class="font-semibold text-ink tabular-nums">${encendidos(c, ctx)} de 64</span> encendidos</p>
+      <div class="grid grid-cols-3 gap-2">${celdas.join('')}</div>
+      <p class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-mut pil-3">
+        <span class="flex items-center gap-1.5"><i class="pt pt-on"></i>Hecho</span>
+        <span class="flex items-center gap-1.5"><i class="pt pt-medias"></i>A medias</span>
+        <span class="flex items-center gap-1.5"><i class="pt pt-off"></i>Pendiente</span>
+        <span class="flex items-center gap-1.5"><i class="pt pt-espera"></i>En espera</span>
+      </p>`;
+  }
+
+  function metaCasilla(a: Accion, e: Estado): string {
+    if (e === 'espera') return 'En espera';
+    if (a.tipo === 'habito') return `${vecesEn7Dias(a.id, ctx.marcas, ctx.hoy)}/${a.objetivoSemana} en 7 días`;
+    if (a.tipo === 'principio') {
+      if (caducada(a, ctx)) return 'Caducada';
+      const r = ultimaRespuesta(a.id, ctx.revisiones, ctx.hoy);
+      return r ? RESPUESTA[r] : 'Sin revisar';
+    }
+    if (a.hechaISO) return `Hecha ${fechaCorta(a.hechaISO)}`;
+    return cuandoCorto(a) ?? '';
+  }
+
+  function pilar(p: Pilar): string {
+    const r = resumenPilar(p, ctx);
+    const celdas: string[] = Array(9);
+    celdas[4] = `<button type="button" data-editar-pilar="${p.id}" class="celda celda-fuerte flex flex-col items-center justify-center gap-1 p-2 text-center">
+      <span class="text-[15px] font-bold leading-tight" style="color:var(--c)">${esc(p.nombre)}</span>
+      <span class="text-xs text-mut tabular-nums">${r.on}/${8 - r.espera}</span>
+      <span class="text-[10px] text-mut underline">Editar</span>
+    </button>`;
+    HUECOS.forEach((h, i) => {
+      const a = p.acciones[i];
+      const e = r.estados[i];
+      celdas[h] = `<button type="button" data-accion="${a.id}" class="celda ${e === 'on' ? 'celda-fuerte' : ''} flex min-h-[112px] flex-col gap-1.5 p-2.5 text-left ${e === 'espera' ? 'opacity-60' : ''}">
+        <span class="flex items-center justify-between gap-1">
+          <span class="text-[9.5px] font-semibold uppercase tracking-wider text-mut">${TIPO[a.tipo]}</span>
+          <i class="pt pt-${e}"></i>
+        </span>
+        <span class="text-[13px] font-medium leading-snug">${esc(a.corto)}</span>
+        <span class="mt-auto text-[11px] text-mut">${esc(metaCasilla(a, e))}</span>
+      </button>`;
+    });
+    return `<div class="pil-${p.color}">
+      <a href="#" class="mb-3 inline-flex items-center gap-1 text-sm text-mut">← Cuadrícula</a>
+      <p class="mb-4 text-[15px] leading-snug">${esc(p.porque)}</p>
+      <div class="grid grid-cols-3 gap-2">${celdas.join('')}</div>
+    </div>`;
+  }
+
+  function pintar() {
+    const p = c.pilares.find((x) => `#${x.id}` === location.hash);
+    vista.innerHTML = p ? pilar(p) : general();
+  }
+
+  const formPilar = document.getElementById('pilar-form') as HTMLDialogElement;
+
+  vista.addEventListener('click', (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-pilar],[data-accion],[data-editar-pilar]');
+    if (!el) return;
+    if (el.dataset.pilar) location.hash = el.dataset.pilar;
+    else if (el.dataset.accion) abrirFicha(el.dataset.accion);
+    else if (el.dataset.editarPilar) {
+      const p = c.pilares.find((x) => x.id === el.dataset.editarPilar);
+      if (!p) return;
+      const form = formPilar.querySelector('form')!;
+      (form.elements.namedItem('nombre') as HTMLInputElement).value = p.nombre;
+      (form.elements.namedItem('porque') as HTMLTextAreaElement).value = p.porque;
+      formPilar.dataset.pilar = p.id;
+      formPilar.showModal();
+    }
+  });
+
+  formPilar.addEventListener('click', (ev) => {
+    const el = ev.target as HTMLElement;
+    if (el === formPilar || el.closest('[data-cancelar]')) formPilar.close();
+  });
+
+  formPilar.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const p = c.pilares.find((x) => x.id === formPilar.dataset.pilar);
+    if (!p) return;
+    const f = new FormData(ev.target as HTMLFormElement);
+    p.nombre = String(f.get('nombre') ?? '').trim() || p.nombre;
+    p.porque = String(f.get('porque') ?? '').trim();
+    await setCuadricula(c);
+    formPilar.close();
+    pintar();
+  });
+
+  window.addEventListener('hashchange', () => {
+    pintar();
+    window.scrollTo(0, 0);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && ctx && ctx.hoy !== hoyISO()) {
+      ctx.hoy = hoyISO();
+      pintar();
+    }
+  });
+
+  async function iniciar() {
+    await initDB();
+    const [cuadricula, marcas, revisiones] = await Promise.all([getCuadricula(), getMarcas(), getRevisiones()]);
+    c = cuadricula;
+    ctx = { hoy: hoyISO(), fechaInicio: c.fechaInicio, marcas, revisiones };
+    pintar();
+  }
+
+  iniciar();
+</script>

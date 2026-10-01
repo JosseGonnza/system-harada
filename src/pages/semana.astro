@@ -1,0 +1,321 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Semana">
+  <div id="normal" class="flex flex-col gap-7">
+    <section id="rev"></section>
+
+    <section>
+      <h2 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-mut">Cómo vas</h2>
+      <div id="resumen"></div>
+    </section>
+
+    <section>
+      <h2 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-mut">Evolución por pilar</h2>
+      <div class="grid grid-cols-2 gap-2" id="evolucion"></div>
+      <details class="mt-3 text-sm">
+        <summary class="cursor-pointer text-mut">Ver por semanas</summary>
+        <div class="mt-2 overflow-x-auto" id="tabla"></div>
+      </details>
+    </section>
+
+    <section>
+      <div class="mb-2.5 flex items-center justify-between">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Logros</h2>
+        <button type="button" id="copiar" class="rounded-full bg-surface2 px-3 py-1.5 text-xs font-semibold">Copiar lista</button>
+      </div>
+      <ul class="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] bg-surface" id="logros"></ul>
+    </section>
+  </div>
+
+  <section id="revision" hidden></section>
+</Layout>
+
+<script>
+  import { getConfig, getCuadricula, getMarcas, getRevisiones, initDB, setRevisiones } from '../lib/db';
+  import { fechaCorta, hoyISO, semanaISO } from '../lib/fechas';
+  import { esc, RESPUESTA } from '../lib/formato';
+  import type { Item } from '../lib/hoy';
+  import { estadoAccion, vecesEn7Dias, type Contexto } from '../lib/puntos';
+  import { historial, logros, principiosARevisar, puntosHace7, responder, revisionDe, textoLogros, tocaRevisar } from '../lib/semana';
+  import type { Config, Cuadricula, Respuesta } from '../lib/types';
+
+  const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+  let c: Cuadricula;
+  let ctx: Contexto;
+  let config: Config;
+  let cola: Item[] = [];
+  let paso = 0;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+
+  // ── Revisión ─────────────────────────────────────────────
+
+  function estadoRevision() {
+    const lista = principiosARevisar(c, ctx);
+    const rev = revisionDe(ctx.revisiones, semanaISO(ctx.hoy));
+    const respondidas = lista.filter((x) => rev?.respuestas[x.accion.id]);
+    return { lista, rev, respondidas };
+  }
+
+  function tarjetaRevision() {
+    const { lista, rev, respondidas } = estadoRevision();
+    const n = lista.length;
+    let titulo: string;
+    let detalle: string;
+    let boton = '';
+    if (!n) {
+      titulo = 'Nada que revisar';
+      detalle = 'No hay principios activos esta semana.';
+    } else if (respondidas.length === n) {
+      const cuenta = (r: Respuesta) => respondidas.filter((x) => rev!.respuestas[x.accion.id] === r).length;
+      titulo = `Revisión hecha · ${fechaCorta(rev!.fechaISO)}`;
+      detalle = `${cuenta('si')} sí · ${cuenta('medias')} a medias · ${cuenta('no')} no`;
+      boton = `<button type="button" data-revisar="rehacer" class="rounded-full bg-surface2 px-4 py-2 text-sm font-semibold">Rehacer</button>`;
+    } else if (respondidas.length) {
+      titulo = `Revisión a medias: ${respondidas.length} de ${n}`;
+      detalle = 'Sigue donde lo dejaste.';
+      boton = `<button type="button" data-revisar="seguir" class="rounded-full bg-acento px-4 py-2 text-sm font-semibold text-bg">Seguir</button>`;
+    } else {
+      const toca = tocaRevisar(config.diaRevision, ctx.hoy);
+      titulo = toca ? 'Toca revisar la semana' : `La revisión toca el ${DIAS[config.diaRevision]}`;
+      detalle = `${n} principio${n === 1 ? '' : 's'}, ${n > 12 ? 'unos 2–3 minutos' : 'menos de un minuto'}.${toca ? '' : ' Puedes hacerla antes.'}`;
+      boton = `<button type="button" data-revisar="empezar" class="rounded-full ${toca ? 'bg-acento text-bg' : 'bg-surface2'} px-4 py-2 text-sm font-semibold">Empezar</button>`;
+    }
+    $('rev').innerHTML = `<div class="anillo flex items-center justify-between gap-3 px-4 py-4">
+      <div class="flex min-w-0 flex-col gap-0.5">
+        <span class="font-semibold leading-snug">${titulo}</span>
+        <span class="text-sm text-mut">${detalle}</span>
+      </div>
+      ${boton}
+    </div>`;
+  }
+
+  function pintarPaso() {
+    const sec = $('revision');
+    if (paso >= cola.length) {
+      const { respondidas, rev } = estadoRevision();
+      const cuenta = (r: Respuesta) => respondidas.filter((x) => rev?.respuestas[x.accion.id] === r).length;
+      sec.innerHTML = `<div class="flex flex-col items-center gap-3 py-10 text-center">
+        <span class="text-xl font-bold">Revisión guardada</span>
+        <span class="text-mut">${cuenta('si')} sí · ${cuenta('medias')} a medias · ${cuenta('no')} no</span>
+        <button type="button" data-salir class="mt-4 rounded-full bg-acento px-6 py-3 font-semibold text-bg">Volver a Semana</button>
+      </div>`;
+      return;
+    }
+    const { pilar: p, accion: a } = cola[paso];
+    const actual = revisionDe(ctx.revisiones, semanaISO(ctx.hoy))?.respuestas[a.id];
+    const opcion = (r: Respuesta) =>
+      `<button type="button" data-respuesta="${r}" aria-pressed="${actual === r}" class="w-full rounded-2xl py-4 text-lg font-semibold ${actual === r ? 'text-bg' : 'bg-surface2'}" ${actual === r ? 'style="background:var(--c)"' : ''}>${RESPUESTA[r]}</button>`;
+    sec.innerHTML = `<div class="pil-${p.color} flex flex-col gap-5">
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between text-xs text-mut"><span>Revisión de la semana</span><span class="tabular-nums">${paso + 1} de ${cola.length}</span></div>
+        <div class="h-1 overflow-hidden rounded-full bg-surface2"><div class="h-full rounded-full" style="width:${((paso + 1) / cola.length) * 100}%;background:var(--c)"></div></div>
+      </div>
+      <div class="celda flex flex-col gap-2 p-5">
+        <span class="text-xs font-semibold" style="color:var(--c)">${esc(p.nombre)}</span>
+        <span class="text-2xl font-bold leading-tight">${esc(a.corto)}</span>
+        <span class="leading-relaxed text-mut">${esc(a.texto)}</span>
+      </div>
+      <p class="text-center font-semibold">¿Lo has cumplido esta semana?</p>
+      <div class="flex flex-col gap-2">${opcion('si')}${opcion('medias')}${opcion('no')}</div>
+      <div class="flex justify-between text-sm text-mut">
+        <button type="button" data-atras ${paso === 0 ? 'disabled class="opacity-40"' : ''}>← Anterior</button>
+        <button type="button" data-salir>Terminar luego</button>
+      </div>
+    </div>`;
+  }
+
+  function entrarRevision(modo: string) {
+    cola = principiosARevisar(c, ctx);
+    const rev = revisionDe(ctx.revisiones, semanaISO(ctx.hoy));
+    paso = modo === 'seguir' ? Math.max(0, cola.findIndex((x) => !rev?.respuestas[x.accion.id])) : 0;
+    $('normal').hidden = true;
+    $('revision').hidden = false;
+    pintarPaso();
+    window.scrollTo(0, 0);
+  }
+
+  function salirRevision() {
+    $('revision').hidden = true;
+    $('normal').hidden = false;
+    pintar();
+    window.scrollTo(0, 0);
+  }
+
+  // ── Resumen, evolución y logros ──────────────────────────
+
+  function delta(d: number): string {
+    if (d > 0) return `<span class="text-ink">▲ ${d}</span>`;
+    if (d < 0) return `<span class="text-aviso">▼ ${-d}</span>`;
+    return `<span class="text-mut">= 0</span>`;
+  }
+
+  function resumen() {
+    const h = historial(c, ctx);
+    const actual = h[h.length - 1];
+    const antes = puntosHace7(c, ctx);
+    const totalAntes = antes?.reduce((a, b) => a + b, 0) ?? 0;
+    const chips = c.pilares
+      .flatMap((p) => p.acciones.filter((a) => a.tipo === 'habito').map((a) => ({ p, a })))
+      .map(({ p, a }) => {
+        const espera = estadoAccion(a, ctx) === 'espera';
+        const n = vecesEn7Dias(a.id, ctx.marcas, ctx.hoy);
+        const ok = n >= (a.objetivoSemana ?? 1);
+        return `<span class="pil-${p.color} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${ok ? 'celda-fuerte font-semibold' : 'bg-surface2'} ${espera ? 'opacity-50' : ''}">
+          <i class="pt ${espera ? 'pt-espera' : ok ? 'pt-on' : n ? 'pt-medias' : 'pt-off'}"></i>${esc(a.corto)} <span class="tabular-nums text-mut">${espera ? 'en espera' : `${n}/${a.objetivoSemana}`}</span></span>`;
+      })
+      .join('');
+    $('resumen').innerHTML = `<div class="flex items-baseline gap-3">
+        <span class="text-5xl font-bold leading-none tabular-nums">${actual.total}</span>
+        <span class="text-sm text-mut">de 64 encendidos</span>
+        <span class="ml-auto text-sm tabular-nums">${antes ? `${delta(actual.total - totalAntes)} <span class="text-mut">vs hace 7 días</span>` : '<span class="text-mut">Primera semana</span>'}</span>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-1.5">${chips}</div>`;
+  }
+
+  function sparkline(valores: number[], color: string): string {
+    const W = 160;
+    const H = 34;
+    const pad = 5;
+    const x = (i: number) => (valores.length === 1 ? W - pad : pad + (i * (W - 2 * pad)) / (valores.length - 1));
+    const y = (v: number) => H - pad - (v / 8) * (H - 2 * pad);
+    const ultimo = valores.length - 1;
+    const linea =
+      valores.length > 1
+        ? `<polyline points="${valores.map((v, i) => `${x(i)},${y(v)}`).join(' ')}" fill="none" stroke="var(--color-mut)" stroke-opacity=".55" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`
+        : '';
+    return `<svg viewBox="0 0 ${W} ${H}" class="h-auto w-full" aria-hidden="true">
+      <line x1="${pad}" x2="${W - pad}" y1="${y(0)}" y2="${y(0)}" stroke="var(--color-line)" stroke-width="1"/>
+      ${linea}
+      <circle cx="${x(ultimo)}" cy="${y(valores[ultimo])}" r="4" fill="${color}" stroke="var(--color-bg)" stroke-width="2"/>
+    </svg>`;
+  }
+
+  function evolucion() {
+    const h = historial(c, ctx);
+    const n = h.length;
+    const antes = puntosHace7(c, ctx);
+    $('evolucion').innerHTML = c.pilares
+      .map((p, i) => {
+        const serie = h.map((s) => s.puntos[i]);
+        const actual = serie[n - 1];
+        const resumenAria = `${p.nombre}: ${serie.join(', ')} encendidos por semana`;
+        return `<div class="pil-${p.color} flex flex-col gap-1.5 rounded-[var(--radius-card)] bg-surface p-3" role="img" aria-label="${esc(resumenAria)}">
+          <span class="flex items-center gap-1.5 text-xs font-semibold"><i class="pt pt-on" style="width:8px;height:8px"></i>${esc(p.nombre)}</span>
+          <span class="flex items-baseline gap-2">
+            <span class="text-xl font-bold tabular-nums">${actual}<span class="text-sm font-normal text-mut">/8</span></span>
+            <span class="text-xs tabular-nums">${antes ? delta(actual - antes[i]) : ''}</span>
+          </span>
+          ${sparkline(serie, 'var(--c)')}
+        </div>`;
+      })
+      .join('');
+    const cab = c.pilares.map((p) => `<th class="px-1.5 py-1 font-semibold">${esc(p.nombre.slice(0, 3))}</th>`).join('');
+    const filas = [...h]
+      .reverse()
+      .map((s) => `<tr class="border-t border-line"><td class="px-1.5 py-1 text-mut">${fechaCorta(s.lunes)}</td>${s.puntos.map((v) => `<td class="px-1.5 py-1 text-center">${v}</td>`).join('')}<td class="px-1.5 py-1 text-center font-semibold">${s.total}</td></tr>`)
+      .join('');
+    $('tabla').innerHTML = `<table class="w-full text-xs tabular-nums"><thead><tr class="text-mut"><th class="px-1.5 py-1 text-left font-semibold">Semana</th>${cab}<th class="px-1.5 py-1 font-semibold">Total</th></tr></thead><tbody>${filas}</tbody></table>`;
+  }
+
+  function listaLogros() {
+    const l = logros(c);
+    $('copiar').hidden = !l.length;
+    $('logros').innerHTML = l.length
+      ? l
+          .map(
+            ({ fecha, pilar: p, accion: a }) => `<li class="pil-${p.color} flex items-center gap-3 px-3.5 py-3">
+              <span class="w-11 flex-none text-xs tabular-nums text-mut">${fechaCorta(fecha)}</span>
+              <span class="flex min-w-0 flex-col">
+                <span class="font-medium leading-snug">${esc(a.corto)}</span>
+                <span class="text-xs" style="color:var(--c)">${esc(p.nombre)}</span>
+              </span>
+            </li>`,
+          )
+          .join('')
+      : `<li class="px-4 py-4 text-sm text-mut">Las tareas que marques como hechas aparecerán aquí con su fecha. Úsala cuando tengas que contar lo que has conseguido.</li>`;
+  }
+
+  async function copiar(texto: string): Promise<boolean> {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch {
+      // Sin https (la IP de casa) no hay portapapeles moderno: se copia a la antigua.
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.append(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    }
+  }
+
+  function pintar() {
+    tarjetaRevision();
+    resumen();
+    evolucion();
+    listaLogros();
+  }
+
+  // ── Eventos ──────────────────────────────────────────────
+
+  $('rev').addEventListener('click', (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-revisar]');
+    if (el) entrarRevision(el.dataset.revisar!);
+  });
+
+  $('revision').addEventListener('click', async (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-respuesta],[data-atras],[data-salir]');
+    if (!el) return;
+    if (el.dataset.respuesta) {
+      ctx.revisiones = responder(ctx.revisiones, semanaISO(ctx.hoy), ctx.hoy, cola[paso].accion.id, el.dataset.respuesta as Respuesta);
+      await setRevisiones(ctx.revisiones);
+      navigator.vibrate?.(12);
+      paso++;
+      pintarPaso();
+    } else if (el.dataset.atras !== undefined && paso > 0) {
+      paso--;
+      pintarPaso();
+    } else if (el.dataset.salir !== undefined) {
+      salirRevision();
+    }
+  });
+
+  $('copiar').addEventListener('click', async () => {
+    const boton = $('copiar');
+    const ok = await copiar(textoLogros(logros(c)));
+    boton.textContent = ok ? 'Copiada' : 'No se pudo copiar';
+    setTimeout(() => (boton.textContent = 'Copiar lista'), 2000);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && ctx && ctx.hoy !== hoyISO() && $('revision').hidden) {
+      ctx.hoy = hoyISO();
+      pintar();
+    }
+  });
+
+  async function iniciar() {
+    await initDB();
+    const [cuadricula, marcas, revisiones, cfg] = await Promise.all([getCuadricula(), getMarcas(), getRevisiones(), getConfig()]);
+    c = cuadricula;
+    config = cfg;
+    ctx = { hoy: hoyISO(), fechaInicio: c.fechaInicio, marcas, revisiones };
+    pintar();
+    // Desde la tarjeta de Hoy se llega con #revisar: entra directo a la revisión.
+    if (location.hash === '#revisar') {
+      history.replaceState(null, '', location.pathname);
+      const { lista, respondidas } = estadoRevision();
+      if (respondidas.length < lista.length) entrarRevision(respondidas.length ? 'seguir' : 'empezar');
+    }
+  }
+
+  iniciar();
+</script>

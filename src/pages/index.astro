@@ -1,0 +1,256 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Hoy">
+  <a href="/ajustes" id="aviso-copia" hidden class="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3 text-sm ring-1 ring-aviso/40">
+    <span class="text-aviso" id="aviso-copia-texto"></span>
+    <span class="flex-none font-semibold">Hacer copia →</span>
+  </a>
+
+  <a href="/ajustes" id="empezar" hidden class="mb-4 flex flex-col gap-2 rounded-2xl bg-surface px-4 py-4 ring-1 ring-acento/50">
+    <span class="font-semibold">Empieza tu cuadrícula</span>
+    <span class="text-sm leading-relaxed text-mut">
+      1. En Ajustes, escribe tu objetivo y su fecha.<br />
+      2. En Cuadrícula, toca un pilar y luego su centro para ponerle nombre y su porqué.<br />
+      3. Toca cada acción → Editar, y elige si es tarea, hábito o principio.<br />
+      ¿Ya tienes una copia? Impórtala en Ajustes.
+    </span>
+    <span class="self-start rounded-full bg-acento px-4 py-2 text-sm font-semibold text-bg">Ir a Ajustes</span>
+  </a>
+
+  <a href="/semana#revisar" id="revision-hoy" hidden class="mb-4 flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3 ring-1 ring-acento/50">
+    <span class="flex min-w-0 flex-col">
+      <span class="font-semibold">Toca revisar la semana</span>
+      <span class="text-sm text-mut" id="revision-hoy-texto"></span>
+    </span>
+    <span class="flex-none rounded-full bg-acento px-4 py-2 text-sm font-semibold text-bg">Revisar</span>
+  </a>
+
+  <section class="anillo flex items-center gap-5 px-5 py-4">
+    <div class="flex flex-col items-center">
+      <span class="text-5xl font-bold leading-none" id="hoy-dias">—</span>
+      <span class="mt-1 text-xs text-mut">días</span>
+    </div>
+    <div class="flex min-w-0 flex-col gap-0.5">
+      <span class="text-sm text-mut" id="hoy-fecha">&nbsp;</span>
+      <span class="font-semibold leading-snug" id="hoy-objetivo">&nbsp;</span>
+      <span class="text-xs text-mut" id="hoy-practicas">&nbsp;</span>
+    </div>
+  </section>
+
+  <section class="mt-7" id="habitos-sec">
+    <h2 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-mut">Hábitos de hoy</h2>
+    <div class="grid grid-cols-2 gap-2" id="habitos"></div>
+    <p class="mt-2 text-xs text-mut" id="habitos-espera"></p>
+  </section>
+
+  <section class="mt-7">
+    <h2 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-mut">Esta semana</h2>
+    <ul class="divide-y divide-line overflow-hidden rounded-[var(--radius-card)] bg-surface" id="tareas"></ul>
+  </section>
+
+  <section class="mt-7" id="principio-sec">
+    <h2 class="mb-2.5 text-xs font-semibold uppercase tracking-wider text-mut">Principio del día</h2>
+    <div id="principio"></div>
+  </section>
+
+  <dialog id="ficha" class="hoja" aria-labelledby="ficha-titulo"></dialog>
+
+  <dialog id="aviso" class="hoja" aria-labelledby="aviso-titulo">
+    <div class="flex flex-col gap-4">
+      <h2 id="aviso-titulo" class="text-xl font-bold leading-tight text-aviso"></h2>
+      <p class="leading-relaxed" id="aviso-texto"></p>
+      <button type="button" data-aviso="no" class="w-full rounded-full bg-ink py-3 font-semibold text-bg">Mejor descanso hoy</button>
+      <button type="button" data-aviso="si" class="py-2 text-sm text-mut">Marcar igualmente</button>
+    </div>
+  </dialog>
+</Layout>
+
+<script>
+  import { getConfig, getCuadricula, getMarcas, getRevisiones, initDB, setCuadricula, setMarcas } from '../lib/db';
+  import { avisoBackup, hayDatos } from '../lib/exportar';
+  import { diasEntre, fechaCorta, fechaLarga, hoyISO, semanaISO, semanaFase } from '../lib/fechas';
+  import { principiosARevisar, revisionDe, tocaRevisar } from '../lib/semana';
+  import { buscarAccion, crearFicha } from '../lib/ficha';
+  import { cuandoTexto, deFase, esc, RESPUESTA } from '../lib/formato';
+  import { alternarMarca, habitosDeHoy, habitosEnEspera, principioDelDia, seguidosAntes, tareasDeHoy, type TareaHoy } from '../lib/hoy';
+  import { caducada, ultimaRevision, vecesEn7Dias, type Contexto } from '../lib/puntos';
+  import type { Config, Cuadricula } from '../lib/types';
+
+  let c: Cuadricula;
+  let config: Config;
+  let ctx: Contexto;
+  let pendiente: string | null = null;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const aviso = $<HTMLDialogElement>('aviso');
+  const abrirFicha = crearFicha($<HTMLDialogElement>('ficha'), () => ({ c, ctx }), () => pintar());
+
+  const CHECK = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+  const mayuscula = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  function cabecera() {
+    $('hoy-dias').textContent = String(Math.max(0, diasEntre(ctx.hoy, c.fechaObjetivo)));
+    $('hoy-fecha').textContent = mayuscula(fechaLarga(ctx.hoy));
+    $('hoy-objetivo').textContent = c.objetivo;
+    const semana = semanaFase(c.fechaInicio, ctx.hoy);
+    $('hoy-practicas').textContent = !c.fechaInicio
+      ? `Inicio ${deFase(c)} sin fijar`
+      : semana === null
+        ? `Empiezas en ${diasEntre(ctx.hoy, c.fechaInicio)} días`
+        : `Semana ${semana} ${deFase(c)}`;
+  }
+
+  function habitos() {
+    const deHoy = habitosDeHoy(c, ctx);
+    $('habitos-sec').hidden = !deHoy.length && !habitosEnEspera(c, ctx).length;
+    $('habitos').innerHTML = deHoy
+      .map(({ pilar: p, accion: a }) => {
+        const hoy = !!ctx.marcas[ctx.hoy]?.includes(a.id);
+        const n = vecesEn7Dias(a.id, ctx.marcas, ctx.hoy);
+        const cumplido = n >= (a.objetivoSemana ?? 1);
+        return `<button type="button" data-habito="${a.id}" aria-pressed="${hoy}" class="celda pil-${p.color} ${hoy ? 'celda-fuerte' : ''} flex min-h-[68px] items-center justify-between gap-2 px-3.5 py-3 text-left">
+          <span class="flex min-w-0 flex-col gap-0.5">
+            <span class="text-[15px] font-semibold leading-tight">${esc(a.corto)}</span>
+            <span class="text-xs tabular-nums ${cumplido ? 'font-semibold' : 'text-mut'}" ${cumplido ? 'style="color:var(--c)"' : ''}>${n}/${a.objetivoSemana} ${cumplido ? '· cumplido' : 'en 7 días'}</span>
+          </span>
+          <span class="check" aria-pressed="${hoy}">${CHECK}</span>
+        </button>`;
+      })
+      .join('');
+    const espera = habitosEnEspera(c, ctx);
+    $('habitos-espera').textContent = espera.length
+      ? `${espera.map((x) => x.accion.corto).join(', ')}: en espera hasta el inicio ${deFase(c)}.`
+      : '';
+  }
+
+  function metaTarea(t: TareaHoy): [string, boolean] {
+    if (t.urgencia === 'hecha') return ['Hecha hoy', false];
+    if (t.urgencia === 'atrasada') {
+      const a = t.accion;
+      const era = a.cuando && 'antesInicio' in a.cuando ? 'era antes de empezar' : `era hasta el ${fechaCorta(t.hasta!)}`;
+      return [`Atrasada · ${era}`, true];
+    }
+    return [cuandoTexto(t.accion, c) ?? '', false];
+  }
+
+  function tareas() {
+    const lista = tareasDeHoy(c, ctx);
+    $('tareas').innerHTML = lista.length
+      ? lista
+          .map((t) => {
+            const hecha = t.urgencia === 'hecha';
+            const [meta, alerta] = metaTarea(t);
+            return `<li class="pil-${t.pilar.color} flex items-center gap-3 px-3.5 py-3">
+              <button type="button" data-tarea-check="${t.accion.id}" class="check" aria-pressed="${hecha}" aria-label="${hecha ? 'Desmarcar' : 'Marcar como hecha'}: ${esc(t.accion.corto)}">${CHECK}</button>
+              <button type="button" data-tarea="${t.accion.id}" class="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
+                <span class="font-medium leading-snug ${hecha ? 'text-mut line-through' : ''}">${esc(t.accion.corto)}</span>
+                <span class="text-xs ${alerta ? 'text-aviso' : 'text-mut'}"><span style="color:var(--c)">${esc(t.pilar.nombre)}</span> · ${esc(meta)}</span>
+              </button>
+            </li>`;
+          })
+          .join('')
+      : `<li class="px-4 py-4 text-sm text-mut">Nada con fecha esta semana. El resto está en Cuadrícula.</li>`;
+  }
+
+  function principio() {
+    const item = principioDelDia(c, ctx);
+    $('principio-sec').hidden = !item;
+    if (!item) return;
+    const { pilar: p, accion: a } = item;
+    const rev = ultimaRevision(a.id, ctx.revisiones, ctx.hoy);
+    const motivo = !rev ? '' : caducada(a, ctx) ? ' · hace tiempo que no lo revisas' : rev.respuesta !== 'si' ? ` · «${RESPUESTA[rev.respuesta].toLowerCase()}» en la última revisión` : '';
+    $('principio').innerHTML = `<button type="button" data-principio="${a.id}" class="celda pil-${p.color} flex w-full flex-col gap-1.5 p-4 text-left">
+      <span class="text-xs font-semibold"><span style="color:var(--c)">${esc(p.nombre)}</span><span class="font-normal text-mut">${esc(motivo)}</span></span>
+      <span class="text-lg font-bold leading-snug">${esc(a.corto)}</span>
+      <span class="leading-relaxed text-mut">${esc(a.texto)}</span>
+    </button>`;
+  }
+
+  function avisoCopia() {
+    const texto = avisoBackup(config.ultimoExportISO, hayDatos(c, ctx.marcas, ctx.revisiones), ctx.hoy);
+    $('aviso-copia').hidden = !texto;
+    $('aviso-copia-texto').textContent = texto ?? '';
+  }
+
+  function revisionPendiente() {
+    const lista = principiosARevisar(c, ctx);
+    const rev = revisionDe(ctx.revisiones, semanaISO(ctx.hoy));
+    const faltan = lista.filter((x) => !rev?.respuestas[x.accion.id]).length;
+    const toca = tocaRevisar(config.diaRevision, ctx.hoy) && faltan > 0;
+    $('revision-hoy').hidden = !toca;
+    if (toca) $('revision-hoy-texto').textContent = faltan === lista.length ? `${faltan} principios, unos minutos` : `Te quedan ${faltan} de ${lista.length}`;
+  }
+
+  function pintar() {
+    $('empezar').hidden = !c.plantilla;
+    avisoCopia();
+    revisionPendiente();
+    cabecera();
+    habitos();
+    tareas();
+    principio();
+  }
+
+  async function marcarHabito(id: string) {
+    ctx.marcas = alternarMarca(ctx.marcas, ctx.hoy, id);
+    await setMarcas(ctx.marcas);
+    navigator.vibrate?.(12);
+    pintar();
+  }
+
+  document.querySelector('main')!.addEventListener('click', async (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-habito],[data-tarea-check],[data-tarea],[data-principio]');
+    if (!el) return;
+    const { habito, tareaCheck, tarea, principio: idPrincipio } = el.dataset;
+    if (habito) {
+      const a = buscarAccion(c, habito)?.[1];
+      const marcadoHoy = ctx.marcas[ctx.hoy]?.includes(habito);
+      if (a?.maxSeguidos && !marcadoHoy && seguidosAntes(habito, ctx.marcas, ctx.hoy) >= a.maxSeguidos) {
+        pendiente = habito;
+        $('aviso-titulo').textContent = `Sería el ${a.maxSeguidos + 1}º día seguido de «${a.corto}»`;
+        $('aviso-texto').textContent = `Te pusiste un máximo de ${a.maxSeguidos} días seguidos. El descanso también es parte del plan.`;
+        aviso.showModal();
+        return;
+      }
+      await marcarHabito(habito);
+    } else if (tareaCheck) {
+      const a = buscarAccion(c, tareaCheck)?.[1];
+      if (!a) return;
+      if (a.hechaISO) delete a.hechaISO;
+      else a.hechaISO = ctx.hoy;
+      await setCuadricula(c);
+      navigator.vibrate?.(12);
+      pintar();
+    } else if (tarea || idPrincipio) {
+      abrirFicha((tarea || idPrincipio)!);
+    }
+  });
+
+  aviso.addEventListener('click', async (ev) => {
+    const el = (ev.target as HTMLElement).closest<HTMLElement>('[data-aviso]');
+    if (ev.target !== aviso && !el) return;
+    aviso.close();
+    if (el?.dataset.aviso === 'si' && pendiente) await marcarHabito(pendiente);
+    pendiente = null;
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && ctx && ctx.hoy !== hoyISO()) {
+      ctx.hoy = hoyISO();
+      pintar();
+    }
+  });
+
+  async function iniciar() {
+    await initDB();
+    const [cuadricula, marcas, revisiones, cfg] = await Promise.all([getCuadricula(), getMarcas(), getRevisiones(), getConfig()]);
+    c = cuadricula;
+    config = cfg;
+    ctx = { hoy: hoyISO(), fechaInicio: c.fechaInicio, marcas, revisiones };
+    pintar();
+  }
+
+  iniciar();
+</script>

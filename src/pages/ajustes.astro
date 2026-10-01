@@ -1,0 +1,318 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Ajustes">
+  <div class="flex flex-col gap-8">
+    <section class="flex flex-col gap-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Objetivo</h2>
+      <div class="flex flex-col gap-3 rounded-2xl bg-surface px-4 py-4">
+        <label class="flex flex-col gap-1.5 text-sm">
+          <span class="text-mut">Qué quieres conseguir</span>
+          <textarea id="f-objetivo-texto" rows="2" maxlength="120" class="campo"></textarea>
+        </label>
+        <label class="flex flex-col gap-1.5 text-sm">
+          <span class="text-mut">Nombre corto (va en el centro de la cuadrícula)</span>
+          <input id="f-objetivo-corto" maxlength="20" class="campo" />
+        </label>
+        <label class="flex items-center justify-between gap-3">
+          <span>Fecha objetivo</span>
+          <input type="date" id="f-objetivo" class="rounded-lg bg-surface2 px-2 py-1.5 text-sm" />
+        </label>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Fase</h2>
+      <p class="-mt-1 text-sm text-mut">
+        El periodo que pone en marcha el plan: unas prácticas, un curso, un entrenamiento… Las acciones que dependen de
+        él esperan a su fecha de inicio.
+      </p>
+      <label class="flex flex-col gap-1.5 rounded-2xl bg-surface px-4 py-3 text-sm">
+        <span class="text-mut">Cómo la llamas, con artículo</span>
+        <input id="f-fase" maxlength="30" placeholder="el plan" class="campo" />
+        <span class="text-xs text-mut" id="fase-ejemplo"></span>
+      </label>
+      <label class="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3">
+        <span id="etiqueta-inicio">Inicio</span>
+        <input type="date" id="f-inicio" class="rounded-lg bg-surface2 px-2 py-1.5 text-sm" />
+      </label>
+      <div class="flex flex-col gap-2 rounded-2xl bg-surface px-4 py-3">
+        <label class="flex items-center justify-between gap-3">
+          <span>Fin estimado</span>
+          <input type="date" id="f-fin" class="rounded-lg bg-surface2 px-2 py-1.5 text-sm" />
+        </label>
+        <div id="calculo" hidden class="flex flex-col gap-2">
+          <button type="button" id="calcular-fin" class="self-start text-sm font-semibold text-acento disabled:text-mut" disabled>
+            Calcular desde el inicio
+          </button>
+          <p class="text-xs text-mut" id="fin-nota"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Revisión semanal</h2>
+      <label class="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3">
+        <span>Día de la revisión</span>
+        <select id="dia-revision" class="rounded-lg bg-surface2 px-2 py-1.5 text-sm">
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+          <option value="0">Domingo</option>
+        </select>
+      </label>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Copia de seguridad</h2>
+      <div class="flex flex-col gap-3 rounded-2xl bg-surface px-4 py-4">
+        <p class="font-semibold" id="copia-estado">&nbsp;</p>
+        <p class="text-sm text-mut">
+          Dos archivos: la copia completa (<code>.json</code>), que sirve para recuperar todo o pasarlo a otro dispositivo,
+          y la foto de la semana en Markdown (<code>.md</code>).
+        </p>
+        <button type="button" id="exportar" class="rounded-full bg-acento py-3 font-semibold text-bg">Exportar copia</button>
+        <label class="cursor-pointer rounded-full bg-surface2 py-3 text-center font-semibold">
+          Importar copia
+          <input type="file" id="importar" accept=".json,.txt,application/json" class="sr-only" />
+        </label>
+        <p class="text-sm text-aviso" id="copia-error" hidden></p>
+        <p class="text-xs text-mut" id="persistencia"></p>
+      </div>
+    </section>
+
+    <section class="flex flex-col gap-3">
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-mut">Empezar de nuevo</h2>
+      <div class="flex flex-col gap-3 rounded-2xl bg-surface px-4 py-4">
+        <p class="text-sm text-mut">
+          <strong class="text-ink">Borrar progreso</strong> mantiene tu cuadrícula y quita lo marcado, las tareas hechas y las
+          revisiones: para empezar de verdad después de probar.
+        </p>
+        <button type="button" id="borrar-progreso" class="rounded-full bg-surface2 py-3 font-semibold">Borrar progreso</button>
+        <p class="text-sm text-mut">
+          <strong class="text-ink">Borrar todo</strong> vuelve a una cuadrícula vacía.
+        </p>
+        <button type="button" id="reset" class="rounded-full py-3 font-semibold text-aviso ring-1 ring-aviso/50">Borrar todo</button>
+      </div>
+    </section>
+
+    <p class="text-center text-xs text-mut">Harada · Los datos viven solo en este dispositivo.</p>
+  </div>
+
+  <dialog id="confirmar" class="hoja" aria-labelledby="confirmar-titulo">
+    <div class="flex flex-col gap-4">
+      <h2 id="confirmar-titulo" class="text-xl font-bold leading-tight"></h2>
+      <p id="confirmar-texto" class="leading-relaxed"></p>
+      <button type="button" data-ok class="w-full rounded-full bg-aviso py-3 font-semibold text-bg"></button>
+      <button type="button" data-cancelar class="py-2 text-sm text-mut">Cancelar</button>
+    </div>
+  </dialog>
+</Layout>
+
+<script>
+  import { finEstimado } from '../lib/calendario';
+  import { compartir, puedeCompartir } from '../lib/compartir';
+  import { borrarProgreso, empezarDeCero, getConfig, getCuadricula, getMarcas, getRevisiones, importar, initDB, setConfig, setCuadricula } from '../lib/db';
+  import { crearBackup, markdownSemana, nombreBackup, validarBackup } from '../lib/exportar';
+  import { diasEntre, fechaCorta, hoyISO } from '../lib/fechas';
+  import { deFase, fase } from '../lib/formato';
+  import type { Config, Cuadricula } from '../lib/types';
+
+  let c: Cuadricula;
+  let config: Config;
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const objetivoTexto = $<HTMLTextAreaElement>('f-objetivo-texto');
+  const objetivoCorto = $<HTMLInputElement>('f-objetivo-corto');
+  const objetivo = $<HTMLInputElement>('f-objetivo');
+  const faseInput = $<HTMLInputElement>('f-fase');
+  const inicio = $<HTMLInputElement>('f-inicio');
+  const fin = $<HTMLInputElement>('f-fin');
+  const diaRevision = $<HTMLSelectElement>('dia-revision');
+  const dialogo = $<HTMLDialogElement>('confirmar');
+
+  function confirmar(titulo: string, texto: string, ok: string): Promise<boolean> {
+    $('confirmar-titulo').textContent = titulo;
+    $('confirmar-texto').textContent = texto;
+    dialogo.querySelector<HTMLButtonElement>('[data-ok]')!.textContent = ok;
+    dialogo.showModal();
+    return new Promise((resolver) => {
+      const alPulsar = (ev: MouseEvent) => {
+        const el = ev.target as HTMLElement;
+        const si = !!el.closest('[data-ok]');
+        if (!si && !el.closest('[data-cancelar]') && el !== dialogo) return;
+        dialogo.removeEventListener('click', alPulsar);
+        dialogo.close();
+        resolver(si);
+      };
+      dialogo.addEventListener('click', alPulsar);
+    });
+  }
+
+  async function guardar() {
+    delete c.plantilla;
+    await setCuadricula(c);
+  }
+
+  function estadoCopia() {
+    const u = config.ultimoExportISO;
+    if (!u) return 'Aún no has hecho ninguna copia.';
+    const dias = diasEntre(hoyISO(new Date(u)), hoyISO());
+    return dias === 0 ? 'Última copia: hoy.' : dias === 1 ? 'Última copia: ayer.' : `Última copia: hace ${dias} días.`;
+  }
+
+  function textosFase() {
+    $('fase-ejemplo').textContent = `Se leerá: «Semana 3 ${deFase(c)}», «Antes de empezar ${fase(c)}».`;
+    $('etiqueta-inicio').textContent = `Inicio ${deFase(c)}`;
+  }
+
+  // El cálculo del fin solo aparece si la cuadrícula trae su horario (viene en la copia importada).
+  function notaFin() {
+    const cal = c.calendario;
+    $('calculo').hidden = !cal;
+    if (!cal) return;
+    $<HTMLButtonElement>('calcular-fin').disabled = !c.fechaInicio;
+    const semanales = cal.horasDia.reduce((a, b) => a + b, 0);
+    $('fin-nota').textContent = !c.fechaInicio
+      ? 'Mete primero la fecha de inicio.'
+      : `Con ${cal.horas} h a ${semanales} h por semana, sin festivos${cal.paron ? ` ni el parón del ${fechaCorta(cal.paron.desde)} al ${fechaCorta(cal.paron.hasta)}` : ''}, sale el ${fechaCorta(finEstimado(c.fechaInicio, cal))}.${cal.paron ? ` Sin parón, el ${fechaCorta(finEstimado(c.fechaInicio, cal, false))}.` : ''}`;
+  }
+
+  async function archivos(): Promise<File[]> {
+    const [marcas, revisiones] = await Promise.all([getMarcas(), getRevisiones()]);
+    const hoy = hoyISO();
+    const backup = crearBackup({ ...config, ultimoExportISO: new Date().toISOString() }, c, marcas, revisiones, new Date());
+    const md = markdownSemana(c, { hoy, fechaInicio: c.fechaInicio, marcas, revisiones });
+    return [
+      new File([JSON.stringify(backup, null, 2)], nombreBackup(hoy), { type: 'application/json' }),
+      new File([md.texto], md.nombre, { type: 'text/markdown' }),
+    ];
+  }
+
+  function pintar() {
+    objetivoTexto.value = c.objetivo;
+    objetivoCorto.value = c.objetivoCorto ?? '';
+    objetivo.value = c.fechaObjetivo;
+    faseInput.value = c.fase ?? '';
+    inicio.value = c.fechaInicio ?? '';
+    fin.value = c.fechaFin ?? '';
+    diaRevision.value = String(config.diaRevision);
+    $('copia-estado').textContent = estadoCopia();
+    textosFase();
+    notaFin();
+  }
+
+  objetivoTexto.addEventListener('change', async () => {
+    if (!objetivoTexto.value.trim()) return (objetivoTexto.value = c.objetivo);
+    c.objetivo = objetivoTexto.value.trim();
+    await guardar();
+  });
+  objetivoCorto.addEventListener('change', async () => {
+    c.objetivoCorto = objetivoCorto.value.trim() || undefined;
+    await guardar();
+  });
+  objetivo.addEventListener('change', async () => {
+    if (!objetivo.value) return (objetivo.value = c.fechaObjetivo);
+    c.fechaObjetivo = objetivo.value;
+    await guardar();
+  });
+  faseInput.addEventListener('change', async () => {
+    c.fase = faseInput.value.trim() || undefined;
+    await guardar();
+    textosFase();
+  });
+  inicio.addEventListener('change', async () => {
+    c.fechaInicio = inicio.value || null;
+    await guardar();
+    notaFin();
+  });
+  fin.addEventListener('change', async () => {
+    c.fechaFin = fin.value || null;
+    await guardar();
+  });
+  $('calcular-fin').addEventListener('click', async () => {
+    if (!c.fechaInicio || !c.calendario) return;
+    c.fechaFin = finEstimado(c.fechaInicio, c.calendario);
+    fin.value = c.fechaFin;
+    await guardar();
+  });
+  diaRevision.addEventListener('change', async () => {
+    config.diaRevision = Number(diaRevision.value);
+    await setConfig(config);
+  });
+
+  $('exportar').addEventListener('click', async () => {
+    const lista = await archivos();
+    const r = await compartir(lista, 'Copia de Harada');
+    if (r === 'cancelado') return;
+    config.ultimoExportISO = new Date().toISOString();
+    await setConfig(config);
+    $('copia-estado').textContent = r === 'compartido' ? 'Copia compartida.' : 'Copia descargada: los dos archivos están en Descargas.';
+  });
+
+  $<HTMLInputElement>('importar').addEventListener('change', async (ev) => {
+    const input = ev.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    input.value = '';
+    if (!archivo) return;
+    const error = $('copia-error');
+    error.hidden = true;
+    try {
+      const b = validarBackup(JSON.parse(await archivo.text()));
+      const ok = await confirmar(
+        'Importar copia',
+        `Esto sustituye todo lo que hay ahora en la app por la copia del ${new Date(b.exportadoISO).toLocaleDateString('es-ES')}.`,
+        'Sí, importar',
+      );
+      if (!ok) return;
+      await importar(b);
+      location.href = '/';
+    } catch (e) {
+      error.textContent = e instanceof SyntaxError ? 'El archivo no es un JSON válido.' : (e as Error).message;
+      error.hidden = false;
+    }
+  });
+
+  $('borrar-progreso').addEventListener('click', async () => {
+    const ok = await confirmar(
+      'Borrar progreso',
+      'Tu cuadrícula se queda como está, pero se pierden las marcas, las tareas hechas y las revisiones.',
+      'Sí, borrar progreso',
+    );
+    if (!ok) return;
+    await borrarProgreso();
+    location.href = '/';
+  });
+
+  $('reset').addEventListener('click', async () => {
+    const ok = await confirmar(
+      'Borrar todo',
+      'Se pierde la cuadrícula entera, con lo marcado y las revisiones, y vuelves a una vacía. No se puede deshacer, salvo que tengas una copia.',
+      'Sí, borrar todo',
+    );
+    if (!ok) return;
+    await empezarDeCero();
+    location.href = '/';
+  });
+
+  async function iniciar() {
+    await initDB();
+    [c, config] = await Promise.all([getCuadricula(), getConfig()]);
+    pintar();
+    if (!puedeCompartir(await archivos())) $('exportar').textContent = 'Descargar copia';
+    try {
+      const protegidos = await navigator.storage?.persisted?.();
+      $('persistencia').textContent = protegidos
+        ? 'El navegador tiene los datos marcados como protegidos: no los borra aunque falte espacio.'
+        : 'El navegador aún no ha protegido los datos: la copia de seguridad es tu red.';
+    } catch {
+      /* sin soporte: no se enseña nada */
+    }
+  }
+
+  iniciar();
+</script>

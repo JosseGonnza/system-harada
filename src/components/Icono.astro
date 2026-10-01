@@ -1,0 +1,38 @@
+---
+interface Props {
+  nombre: 'hoy' | 'cuadricula' | 'semana' | 'ajustes';
+  px?: number;
+}
+const { nombre, px = 24 } = Astro.props;
+---
+
+<svg width={px} height={px} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {nombre === 'hoy' && (
+    <>
+      <rect x="3.5" y="5" width="17" height="15" rx="3" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+      <circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none" />
+    </>
+  )}
+  {nombre === 'cuadricula' && (
+    <>
+      <rect x="3.5" y="3.5" width="4.5" height="4.5" rx="1.2" />
+      <rect x="9.75" y="3.5" width="4.5" height="4.5" rx="1.2" />
+      <rect x="16" y="3.5" width="4.5" height="4.5" rx="1.2" />
+      <rect x="3.5" y="9.75" width="4.5" height="4.5" rx="1.2" />
+      <circle cx="12" cy="12" r="2.2" />
+      <rect x="16" y="9.75" width="4.5" height="4.5" rx="1.2" />
+      <rect x="3.5" y="16" width="4.5" height="4.5" rx="1.2" />
+      <rect x="9.75" y="16" width="4.5" height="4.5" rx="1.2" />
+      <rect x="16" y="16" width="4.5" height="4.5" rx="1.2" />
+    </>
+  )}
+  {nombre === 'semana' && <path d="M5 20V13M10 20V8M15 20v-6M20 20V5" />}
+  {nombre === 'ajustes' && (
+    <>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </>
+  )}
+</svg>

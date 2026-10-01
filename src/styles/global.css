@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+/* "Agenda nocturna" (B1): fondo carbón, un pastel por pilar, Figtree. */
+@theme {
+  --color-bg: #1b1d24;
+  --color-surface: #23252d;
+  --color-surface2: #262830;
+  --color-line: #2a2c35;
+  --color-ink: #e9e8ee;
+  --color-mut: #9b9aa6;
+  --color-acento: #f0cd7c;
+  --color-aviso: #ff8a80;
+
+  --color-p1: #9cc0ec;
+  --color-p2: #9fd3ad;
+  --color-p3: #f0cd7c;
+  --color-p4: #f2ae9f;
+  --color-p5: #c4b2ee;
+  --color-p6: #f0acd0;
+  --color-p7: #85cfc8;
+  --color-p8: #dcbd98;
+
+  --font-sans: 'Figtree Variable', system-ui, sans-serif;
+  --radius-card: 16px;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-acento);
+  outline-offset: 2px;
+}
+
+/* Color de pilar: la clase fija --c y los componentes lo usan. */
+.pil-1 { --c: var(--color-p1); }
+.pil-2 { --c: var(--color-p2); }
+.pil-3 { --c: var(--color-p3); }
+.pil-4 { --c: var(--color-p4); }
+.pil-5 { --c: var(--color-p5); }
+.pil-6 { --c: var(--color-p6); }
+.pil-7 { --c: var(--color-p7); }
+.pil-8 { --c: var(--color-p8); }
+
+.celda {
+  background: color-mix(in srgb, var(--c) 11%, var(--color-bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent);
+  border-radius: var(--radius-card);
+}
+
+/* Anillo con los 8 colores alrededor del objetivo. */
+.anillo {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
+    conic-gradient(from 20deg, var(--color-p1), var(--color-p2), var(--color-p3), var(--color-p4),
+      var(--color-p5), var(--color-p6), var(--color-p7), var(--color-p8), var(--color-p1)) border-box;
+  border-radius: var(--radius-card);
+}
+
+.celda-fuerte {
+  background: color-mix(in srgb, var(--c) 22%, var(--color-bg));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+/* Mini 3×3 de puntos: el centro es el pilar, alrededor sus 8 acciones. */
+.mini {
+  display: grid;
+  grid-template-columns: repeat(3, 10px);
+  grid-auto-rows: 10px;
+  gap: 5px;
+}
+.pt {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c) 22%, var(--color-bg));
+}
+.pt-on {
+  background: var(--c);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--c) 55%, transparent);
+}
+.pt-medias {
+  background: linear-gradient(90deg, var(--c) 50%, color-mix(in srgb, var(--c) 22%, var(--color-bg)) 50%);
+}
+.pt-espera {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 35%, transparent);
+}
+.pt-core {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--c);
+  border-radius: 3px;
+}
+
+/* Ficha de acción: hoja que sube desde abajo. */
+.hoja {
+  margin: auto auto 0;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 85dvh;
+  border: 0;
+  border-radius: 22px 22px 0 0;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+}
+.hoja::backdrop {
+  background: rgb(10 11 15 / 0.6);
+}
+
+/* Círculo de marcar: hueco del color del pilar o relleno con ✓. */
+.check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 50%, transparent);
+  color: var(--color-bg);
+}
+.check[aria-pressed='true'] {
+  background: var(--c);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.check svg {
+  visibility: hidden;
+}
+.check[aria-pressed='true'] svg {
+  visibility: visible;
+}
+
+.campo {
+  width: 100%;
+  border-radius: 12px;
+  background: var(--color-surface2);
+  padding: 0.6rem 0.75rem;
+  font-size: 16px; /* menos de 16px y el móvil hace zoom al escribir */
+  color: var(--color-ink);
+}
