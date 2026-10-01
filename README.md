@@ -7,6 +7,10 @@
 > Responde de un vistazo a tres preguntas: qué toca hoy, qué está hecho y qué
 > pilar va flojo.
 
+![Las pantallas Hoy, Cuadrícula, la vista de un pilar y Semana](docs/captura.jpg)
+
+<sub>Datos de ejemplo: una cuadrícula para terminar una primera maratón en menos de 4 horas.</sub>
+
 El método es de Takashi Harada: una cuadrícula de 9×9 con el objetivo en el
 centro, ocho pilares alrededor y ocho acciones concretas por pilar. Es la que
 hizo famosa Shohei Ohtani en el instituto. Hacerla en papel es fácil; lo difícil
